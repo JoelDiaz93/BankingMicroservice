@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Clients.Domain/Clients.Domain.csproj" />
+    <ProjectReference Include="../../../BuildingBlocks/Banking.Contracts/Banking.Contracts.csproj" />
+  </ItemGroup>
+</Project>

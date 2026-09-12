@@ -1,0 +1,41 @@
+name: build-and-test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies
+        run: dotnet restore BankingMicroservices.sln
+      - name: Build solution
+        run: dotnet build BankingMicroservices.sln -c Release --no-restore
+      - name: Check Docker
+        run: docker info
+      - name: Run tests with coverage
+        run: dotnet test BankingMicroservices.sln -c Release --no-build --logger trx --collect:"XPlat Code Coverage" --results-directory TestResults -m:1
+      - name: Restore dependencies local tools
+        run: dotnet tool restore
+      - name: Generate coverage report
+        run: >-
+          dotnet tool run reportgenerator
+          '-reports:TestResults/**/coverage.cobertura.xml'
+          '-targetdir:coverage-report'
+          '-reporttypes:Html;TextSummary;Cobertura'
+          '-assemblyfilters:+Clients.*;+Accounts.*;-*.Tests'
+      - name: Print coverage summary
+        run: cat coverage-report/Summary.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-and-coverage-results
+          path: |
+            TestResults
+            coverage-report
