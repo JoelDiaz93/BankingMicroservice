@@ -45,7 +45,7 @@ public sealed class MovimientoRepository : IMovimientoRepository
     {
         var ids = cuentaIds.Distinct().ToArray();
         return await _db.Movimientos.AsNoTracking()
-            .Where(x => ids.Contains(x.CuentaId) && x.Fecha >= desde && x.Fecha <= hasta)
+            .Where(x => Enumerable.Contains(ids, x.CuentaId) && x.Fecha >= desde && x.Fecha <= hasta)
             .OrderBy(x => x.Fecha).ThenBy(x => x.Id)
             .ToListAsync(cancellationToken);
     }

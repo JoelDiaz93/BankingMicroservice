@@ -82,7 +82,7 @@ BankingMicroservices/
 
 Antes de ejecutar el proyecto se necesita:
 
-- **.NET SDK 8**
+- **.NET SDK 8** (el repositorio fija `8.0.425` mediante `global.json`)
 - **Docker Desktop** o Docker Engine con Docker Compose
 - **Postman 9.13.2 o superior**
 - Puertos libres: `5432`, `5672`, `15672`, `8081`, `8082`
@@ -94,6 +94,8 @@ dotnet --version
 docker --version
 docker compose version
 ```
+
+El SDK está fijado mediante `global.json` para que compilaciones locales y CI utilicen la misma línea de herramientas de .NET 8. La solución compila con **C# 12**, evitando que versiones más nuevas del compilador modifiquen la resolución de sobrecargas en expresiones LINQ destinadas a EF Core 8.
 
 ## Descarga y preparación
 
@@ -320,6 +322,19 @@ Start-Process .\coverage-report\index.html
 ```
 
 El reporte se genera a partir de las seis suites para evitar mantener porcentajes manuales desactualizados en la documentación.
+
+## Integración continua
+
+El workflow `.github/workflows/ci.yml` ejecuta en cada `push` a `main`/`master` y en cada pull request:
+
+1. preparación del SDK definido en `global.json`;
+2. restore y build en `Release`;
+3. comprobación del daemon Docker requerido por Testcontainers;
+4. ejecución de las 34 pruebas con cobertura;
+5. generación del reporte Cobertura/HTML;
+6. publicación de resultados y cobertura como artifact de GitHub Actions.
+
+Las Actions utilizadas ejecutan sobre Node.js 24 y el SDK de compilación queda fijado en .NET 8 para mantener el mismo comportamiento entre desarrollo local y CI.
 
 ## Flujo recomendado de validación
 
